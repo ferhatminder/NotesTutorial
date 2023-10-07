@@ -1,20 +1,15 @@
 package com.ferhatminder.notes
 
-import android.content.Context
 import android.os.Bundle
-import android.util.AttributeSet
-import android.view.View
 import android.widget.Button
 import android.widget.TextView
-import androidx.activity.ComponentActivity
-import androidx.activity.compose.setContent
 import androidx.appcompat.app.AppCompatActivity
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.ComposeView
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import com.ferhatminder.notes.ui.theme.NotesTheme
 
@@ -30,6 +25,7 @@ class MainActivity : AppCompatActivity() {
 
         val text = findViewById<TextView>(R.id.text_view)
         val button = findViewById<Button>(R.id.button)
+        val composeView = findViewById<ComposeView>(R.id.compose)
 
         text.text = "Hello World!"
         button.setOnClickListener {
@@ -37,6 +33,15 @@ class MainActivity : AppCompatActivity() {
             counter++
             btn.text = counter.toString()
         }
+
+        composeView.setContent {
+            Greeting(
+                modifier = Modifier
+                    .fillMaxSize(),
+                name = "Ferhat"
+            )
+        }
+
     }
 
 }
@@ -45,7 +50,8 @@ class MainActivity : AppCompatActivity() {
 fun Greeting(name: String, modifier: Modifier = Modifier) {
     Text(
         text = "Hello $name!",
-        modifier = modifier
+        modifier = modifier,
+        textAlign = TextAlign.Center
     )
 }
 
