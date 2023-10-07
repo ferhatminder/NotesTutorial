@@ -1,8 +1,14 @@
 package com.ferhatminder.notes
 
+import android.content.Context
 import android.os.Bundle
+import android.util.AttributeSet
+import android.view.View
+import android.widget.Button
+import android.widget.TextView
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
+import androidx.appcompat.app.AppCompatActivity
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
@@ -12,21 +18,27 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import com.ferhatminder.notes.ui.theme.NotesTheme
 
-class MainActivity : ComponentActivity() {
+class MainActivity : AppCompatActivity() {
+
+
+    private var counter = 0
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContent {
-            NotesTheme {
-                // A surface container using the 'background' color from the theme
-                Surface(
-                    modifier = Modifier.fillMaxSize(),
-                    color = MaterialTheme.colorScheme.background
-                ) {
-                    Greeting("Android")
-                }
-            }
+
+        setContentView(R.layout.activity_main)
+
+        val text = findViewById<TextView>(R.id.text_view)
+        val button = findViewById<Button>(R.id.button)
+
+        text.text = "Hello World!"
+        button.setOnClickListener {
+            val btn = it as Button
+            counter++
+            btn.text = counter.toString()
         }
     }
+
 }
 
 @Composable
