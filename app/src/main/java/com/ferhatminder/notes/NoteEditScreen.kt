@@ -24,18 +24,17 @@ import com.ferhatminder.notes.ui.theme.NotesTheme
 import com.ferhatminder.notes.ui.theme.Typography
 
 @Composable
-fun NoteEditScreen() {
-    val note = Note(
-        1,
-        "Todo",
-        "- Buy some milk, eggs\n- Clean room\n- Cook dinner"
-    )
-
+fun NoteEditScreen(
+    note: Note,
+    onChangeTitle: (title: String) -> Unit = {},
+    onChangeBody: (body: String) -> Unit = {},
+    onClickBack: () -> Unit = {}
+) {
     NoteEditScreenContent(
         note = note,
-        onChangeTitle = {},
-        onChangeBody = {},
-        onClickBack = {}
+        onChangeTitle = onChangeTitle,
+        onChangeBody = onChangeBody,
+        onClickBack = onClickBack
     )
 }
 

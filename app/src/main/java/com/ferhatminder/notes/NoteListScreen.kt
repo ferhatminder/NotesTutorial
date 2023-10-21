@@ -27,32 +27,15 @@ import com.ferhatminder.notes.ui.theme.NotesTheme
 import com.ferhatminder.notes.ui.theme.Typography
 
 @Composable
-fun NoteListScreen() {
-    val notes = listOf(
-        Note(
-            1,
-            "Todo",
-            "- Buy some milk, eggs\n- Clean room\n- Cook dinner"
-        ),
-        Note(
-            2,
-            "Quotes",
-            "Around the survivors a perimeter create.\n... a mind needs books as a sword needs a whetstone, if it is to keep its edge."
-        ),
-        Note(
-            3,
-            "Cites",
-            "Port Jarod, Raulbury, New Darrenville"
-        ),
-        Note(
-            4,
-            "Countries",
-            "French Guiana, Myanmar, Grenada"
-        )
-    )
-
+fun NoteListScreen(
+    notes: List<Note>,
+    onClick: (note: Note) -> Unit = {},
+    onClickAddButton: () -> Unit = {},
+) {
     NoteListScreenContent(
-        notes = notes
+        notes = notes,
+        onClick = onClick,
+        onClickAddButton = onClickAddButton
     )
 }
 
