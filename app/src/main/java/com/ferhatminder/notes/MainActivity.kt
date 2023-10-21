@@ -4,6 +4,10 @@ import android.os.Bundle
 import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
@@ -17,35 +21,34 @@ class MainActivity : ComponentActivity() {
         private const val TAG = "MainActivity"
     }
 
-    var notes = mutableListOf(
-        Note(
-            1,
-            "Todo",
-            "- Buy some milk, eggs\n- Clean room\n- Cook dinner"
-        ),
-        Note(
-            2,
-            "Quotes",
-            "Around the survivors a perimeter create.\n... a mind needs books as a sword needs a whetstone, if it is to keep its edge."
-        ),
-        Note(
-            3,
-            "Cites",
-            "Port Jarod, Raulbury, New Darrenville"
-        ),
-        Note(
-            4,
-            "Countries",
-            "French Guiana, Myanmar, Grenada"
-        )
-    )
-
-    var updatedNote: Note? = null
-
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {
             NotesTheme {
+                val notes = remember {
+                    mutableListOf(
+                        Note(
+                            1,
+                            "Todo",
+                            "- Buy some milk, eggs\n- Clean room\n- Cook dinner"
+                        ),
+                        Note(
+                            2,
+                            "Quotes",
+                            "Around the survivors a perimeter create.\n... a mind needs books as a sword needs a whetstone, if it is to keep its edge."
+                        ),
+                        Note(
+                            3,
+                            "Cites",
+                            "Port Jarod, Raulbury, New Darrenville"
+                        ),
+                        Note(
+                            4,
+                            "Countries",
+                            "French Guiana, Myanmar, Grenada"
+                        )
+                    )
+                }
 
                 val navController = rememberNavController()
                 NavHost(
@@ -72,43 +75,50 @@ class MainActivity : ComponentActivity() {
                         }
                     )) { entry ->
                         val id = entry.arguments?.getInt("id")
-                        notes.firstOrNull { it.id == id }?.let { note ->
-                            updatedNote = note
+                        var updatedNote: Note by remember(id) {
+                            mutableStateOf(
+                                notes.firstOrNull { it.id == id }
+                                    ?: Note(notes.size, "", "")
+                            )
+                        }
+                        if (id != 0) {
                             NoteEditScreen(
-                                note = updatedNote!!,
+                                note = updatedNote,
                                 onClickBack = {
-                                    notes.remove(note)
-                                    notes.add(0, note)
+                                    val note = notes.first { it.id == id }
+                                    if (updatedNote != note) {
+                                        notes.remove(note)
+                                        notes.add(0, updatedNote)
+                                    }
                                     navController.popBackStack()
                                 },
                                 onChangeTitle = {
-                                    updatedNote = updatedNote!!.copy(
+                                    updatedNote = updatedNote.copy(
                                         title = it
                                     )
                                 },
                                 onChangeBody = {
-                                    updatedNote = updatedNote!!.copy(
+                                    updatedNote = updatedNote.copy(
                                         body = it
                                     )
                                     Log.d(TAG, "onChangeBody: Input: $it")
                                     Log.d(TAG, "onChangeBody: Note: $updatedNote")
                                 },
                             )
-                        } ?: run {
-                            updatedNote = Note(notes.size, "", "")
+                        } else {
                             NoteEditScreen(
-                                note = updatedNote!!,
+                                note = updatedNote,
                                 onClickBack = {
-                                    notes.add(0, updatedNote!!)
+                                    notes.add(0, updatedNote)
                                     navController.popBackStack()
                                 },
                                 onChangeTitle = {
-                                    updatedNote = updatedNote!!.copy(
+                                    updatedNote = updatedNote.copy(
                                         title = it
                                     )
                                 },
                                 onChangeBody = {
-                                    updatedNote = updatedNote!!.copy(
+                                    updatedNote = updatedNote.copy(
                                         body = it
                                     )
                                     Log.d(TAG, "onChangeBody: Input: $it")
