@@ -5,7 +5,7 @@ package com.ferhatminder.notes.domain.model
  * @see <a href="https://kotlinlang.org/docs/data-classes.html">Data Class Documentation</a>
  */
 data class Note(
-    val id: Int,
-    val title: String,
-    val body: String
+    val id: Int = 0,
+    val title: String = "",
+    val body: String = ""
 )

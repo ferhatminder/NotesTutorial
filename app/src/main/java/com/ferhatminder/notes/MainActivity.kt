@@ -1,128 +1,127 @@
 package com.ferhatminder.notes
 
 import android.os.Bundle
-import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
+import androidx.compose.animation.core.tween
+import androidx.compose.animation.slideInHorizontally
+import androidx.compose.animation.slideOutHorizontally
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.Surface
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
-import com.ferhatminder.notes.domain.model.Note
 import com.ferhatminder.notes.ui.theme.NotesTheme
 
 class MainActivity : ComponentActivity() {
     companion object {
         private const val TAG = "MainActivity"
+        private const val ANIM_DURATION = 400
     }
 
+    @OptIn(ExperimentalMaterial3Api::class)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {
             NotesTheme {
-                val notes = remember {
-                    mutableListOf(
-                        Note(
-                            1,
-                            "Todo",
-                            "- Buy some milk, eggs\n- Clean room\n- Cook dinner"
-                        ),
-                        Note(
-                            2,
-                            "Quotes",
-                            "Around the survivors a perimeter create.\n... a mind needs books as a sword needs a whetstone, if it is to keep its edge."
-                        ),
-                        Note(
-                            3,
-                            "Cites",
-                            "Port Jarod, Raulbury, New Darrenville"
-                        ),
-                        Note(
-                            4,
-                            "Countries",
-                            "French Guiana, Myanmar, Grenada"
-                        )
-                    )
-                }
-
-                val navController = rememberNavController()
-                NavHost(
-                    navController = navController,
-                    startDestination = "todos"
-                ) {
-                    composable(route = "todos") {
-                        NoteListScreen(
-                            notes,
-                            onClick = {
-                                navController.navigate("todos/${it.id}")
+                Surface {
+                    val navController = rememberNavController()
+                    NavHost(
+                        navController = navController,
+                        startDestination = "todos"
+                    ) {
+                        composable(
+                            route = "todos",
+                            enterTransition = {
+                                slideInHorizontally(
+                                    animationSpec = tween(ANIM_DURATION),
+                                    initialOffsetX = { -it }
+                                )
                             },
-                            onClickAddButton = {
-                                navController.navigate("todos/${0}")
+                            exitTransition = {
+                                slideOutHorizontally(
+                                    animationSpec = tween(ANIM_DURATION),
+                                    targetOffsetX = { -it }
+                                )
                             }
-                        )
-                    }
+                        ) {
+                            val viewModel = viewModel<NotesViewModel>(
+                                viewModelStoreOwner = it
+                            )
+                            val state by viewModel.state.collectAsState()
 
-                    composable(route = "todos/{id}", arguments = listOf(
-                        navArgument("id") {
-                            this.type = NavType.IntType
-                            this.defaultValue = 0
-                            this.nullable = false
-                        }
-                    )) { entry ->
-                        val id = entry.arguments?.getInt("id")
-                        var updatedNote: Note by remember(id) {
-                            mutableStateOf(
-                                notes.firstOrNull { it.id == id }
-                                    ?: Note(notes.size, "", "")
+                            LaunchedEffect(Unit) {
+                                viewModel.sendIntent(NotesViewModel.Intent.GetNotes)
+                            }
+
+                            NoteListScreen(
+                                state.notes,
+                                onClick = { note ->
+                                    navController.navigate("todos/${note.id}")
+                                },
+                                onClickAddButton = {
+                                    navController.navigate("todos/${0}")
+                                }
                             )
                         }
-                        if (id != 0) {
+
+                        composable(
+                            route = "todos/{id}",
+                            arguments = listOf(
+                                navArgument("id") {
+                                    type = NavType.IntType
+                                    defaultValue = 0
+                                    nullable = false
+                                }
+                            ),
+                            enterTransition = {
+                                slideInHorizontally(
+                                    animationSpec = tween(ANIM_DURATION),
+                                    initialOffsetX = { it }
+                                )
+                            },
+                            exitTransition = {
+                                slideOutHorizontally(
+                                    animationSpec = tween(ANIM_DURATION),
+                                    targetOffsetX = { it }
+                                )
+                            }
+                        ) { entry ->
+                            val id = entry.arguments?.getInt("id")
+                            val previousEntry = remember(entry) {
+                                navController.getBackStackEntry("todos")
+                            }
+                            val viewModel = viewModel<NotesViewModel>(
+                                viewModelStoreOwner = previousEntry,
+                            )
+
+                            val state by viewModel.state.collectAsState()
+
+                            LaunchedEffect(Unit) {
+                                viewModel.sendIntent(NotesViewModel.Intent.EditNote(id))
+                            }
+
                             NoteEditScreen(
-                                note = updatedNote,
+                                note = state.editNote,
                                 onClickBack = {
-                                    val note = notes.first { it.id == id }
-                                    if (updatedNote != note) {
-                                        notes.remove(note)
-                                        notes.add(0, updatedNote)
-                                    }
                                     navController.popBackStack()
                                 },
                                 onChangeTitle = {
-                                    updatedNote = updatedNote.copy(
-                                        title = it
+                                    viewModel.sendIntent(
+                                        NotesViewModel.Intent.ChangeTitle(it)
                                     )
                                 },
                                 onChangeBody = {
-                                    updatedNote = updatedNote.copy(
-                                        body = it
+                                    viewModel.sendIntent(
+                                        NotesViewModel.Intent.ChangeBody(it)
                                     )
-                                    Log.d(TAG, "onChangeBody: Input: $it")
-                                    Log.d(TAG, "onChangeBody: Note: $updatedNote")
-                                },
-                            )
-                        } else {
-                            NoteEditScreen(
-                                note = updatedNote,
-                                onClickBack = {
-                                    notes.add(0, updatedNote)
-                                    navController.popBackStack()
-                                },
-                                onChangeTitle = {
-                                    updatedNote = updatedNote.copy(
-                                        title = it
-                                    )
-                                },
-                                onChangeBody = {
-                                    updatedNote = updatedNote.copy(
-                                        body = it
-                                    )
-                                    Log.d(TAG, "onChangeBody: Input: $it")
-                                    Log.d(TAG, "onChangeBody: Note: $updatedNote")
                                 },
                             )
                         }

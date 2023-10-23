@@ -14,8 +14,10 @@ import androidx.compose.material3.TextField
 import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
+import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -23,6 +25,7 @@ import com.ferhatminder.notes.domain.model.Note
 import com.ferhatminder.notes.ui.theme.NotesTheme
 import com.ferhatminder.notes.ui.theme.Typography
 
+@OptIn(ExperimentalComposeUiApi::class)
 @Composable
 fun NoteEditScreen(
     note: Note,
@@ -30,11 +33,15 @@ fun NoteEditScreen(
     onChangeBody: (body: String) -> Unit = {},
     onClickBack: () -> Unit = {}
 ) {
+    val keyboardController = LocalSoftwareKeyboardController.current
     NoteEditScreenContent(
         note = note,
         onChangeTitle = onChangeTitle,
         onChangeBody = onChangeBody,
-        onClickBack = onClickBack
+        onClickBack = {
+            keyboardController?.hide()
+            onClickBack()
+        }
     )
 }
 
