@@ -1,37 +1,17 @@
-package com.ferhatminder.notes
+package com.ferhatminder.notes.featureNotes.presentation
 
 import androidx.lifecycle.ViewModel
-import com.ferhatminder.notes.domain.model.Note
+import com.ferhatminder.notes.featureNotes.domain.model.Note
+import com.ferhatminder.notes.featureNotes.domain.repository.NotesRepository
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 
-class NotesViewModel : ViewModel() {
+class NotesViewModel(
+    private val repository: NotesRepository
+) : ViewModel() {
     private val _state = MutableStateFlow(State())
     val state = _state.asStateFlow()
-
-    val notes = mutableListOf(
-        Note(
-            1,
-            "Todo",
-            "- Buy some milk, eggs\n- Clean room\n- Cook dinner"
-        ),
-        Note(
-            2,
-            "Quotes",
-            "Around the survivors a perimeter create.\n... a mind needs books as a sword needs a whetstone, if it is to keep its edge."
-        ),
-        Note(
-            3,
-            "Cites",
-            "Port Jarod, Raulbury, New Darrenville"
-        ),
-        Note(
-            4,
-            "Countries",
-            "French Guiana, Myanmar, Grenada"
-        )
-    )
 
     fun sendIntent(intent: Intent) {
         when (intent) {
@@ -46,6 +26,7 @@ class NotesViewModel : ViewModel() {
     }
 
     private fun getNotes() {
+        val notes = repository.getNotes()
         _state.update { it.copy(notes = notes) }
     }
 
@@ -60,48 +41,35 @@ class NotesViewModel : ViewModel() {
         } else {
             _state.update {
                 it.copy(
-                    editNote = notes[index]
+                    editNote = _state.value.notes[index]
                 )
             }
         }
     }
 
-    private fun updateInsertNote(note: Note): Note {
-        var upsertedNote: Note = note
-        val index = notes.indexOfFirst { it.id == note.id }
-        if (index == -1) {
-            upsertedNote = note.copy(
-                id = notes.size
-            )
-            notes.add(0, upsertedNote)
-        } else {
-            notes.removeAt(index)
-            notes.add(0, note)
-        }
-
-        return upsertedNote
-    }
 
     private fun changeTitle(intent: Intent.ChangeTitle) {
+        val editedNote = repository.updateInsertNote(
+            _state.value.editNote.copy(
+                title = intent.title
+            )
+        )
         _state.update {
             it.copy(
-                editNote = updateInsertNote(
-                    _state.value.editNote.copy(
-                        title = intent.title
-                    )
-                )
+                editNote = editedNote
             )
         }
     }
 
     private fun changeBody(intent: Intent.ChangeBody) {
+        val editedNote = repository.updateInsertNote(
+            _state.value.editNote.copy(
+                body = intent.body
+            )
+        )
         _state.update {
             it.copy(
-                editNote = updateInsertNote(
-                    _state.value.editNote.copy(
-                        body = intent.body
-                    )
-                )
+                editNote = editedNote
             )
         }
     }

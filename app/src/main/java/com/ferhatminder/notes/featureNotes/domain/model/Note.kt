@@ -1,4 +1,4 @@
-package com.ferhatminder.notes.domain.model
+package com.ferhatminder.notes.featureNotes.domain.model
 
 /**
  * Classes that holds data and generates some useful functions

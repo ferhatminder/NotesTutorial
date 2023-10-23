@@ -1,4 +1,4 @@
-package com.ferhatminder.notes
+package com.ferhatminder.notes.featureNotes.presentation.screen
 
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -21,7 +21,7 @@ import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import com.ferhatminder.notes.domain.model.Note
+import com.ferhatminder.notes.featureNotes.domain.model.Note
 import com.ferhatminder.notes.ui.theme.NotesTheme
 import com.ferhatminder.notes.ui.theme.Typography
 
@@ -143,10 +143,9 @@ private fun NoteBody(
     )
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Preview
 @Composable
-private fun PreviewNoteListScreenContent() {
+private fun PreviewNoteEditScreenContent() {
     NotesTheme {
         Column {
             NoteEditScreenContent(

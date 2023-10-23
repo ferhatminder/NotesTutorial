@@ -6,18 +6,23 @@ import androidx.activity.compose.setContent
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.slideInHorizontally
 import androidx.compose.animation.slideOutHorizontally
-import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Surface
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
+import androidx.lifecycle.ViewModel
+import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
+import com.ferhatminder.notes.featureNotes.domain.repository.NotesRepositoryImpl
+import com.ferhatminder.notes.featureNotes.presentation.NotesViewModel
+import com.ferhatminder.notes.featureNotes.presentation.screen.NoteEditScreen
+import com.ferhatminder.notes.featureNotes.presentation.screen.NoteListScreen
 import com.ferhatminder.notes.ui.theme.NotesTheme
 
 class MainActivity : ComponentActivity() {
@@ -26,7 +31,6 @@ class MainActivity : ComponentActivity() {
         private const val ANIM_DURATION = 400
     }
 
-    @OptIn(ExperimentalMaterial3Api::class)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {
@@ -53,8 +57,17 @@ class MainActivity : ComponentActivity() {
                             }
                         ) {
                             val viewModel = viewModel<NotesViewModel>(
-                                viewModelStoreOwner = it
+                                viewModelStoreOwner = it,
+                                factory = object : ViewModelProvider.Factory {
+                                    override fun <T : ViewModel> create(modelClass: Class<T>): T {
+                                        @Suppress("UNCHECKED_CAST")
+                                        return NotesViewModel(
+                                            NotesRepositoryImpl()
+                                        ) as T
+                                    }
+                                }
                             )
+
                             val state by viewModel.state.collectAsState()
 
                             LaunchedEffect(Unit) {
@@ -100,6 +113,14 @@ class MainActivity : ComponentActivity() {
                             }
                             val viewModel = viewModel<NotesViewModel>(
                                 viewModelStoreOwner = previousEntry,
+                                factory = object : ViewModelProvider.Factory {
+                                    override fun <T : ViewModel> create(modelClass: Class<T>): T {
+                                        @Suppress("UNCHECKED_CAST")
+                                        return NotesViewModel(
+                                            NotesRepositoryImpl()
+                                        ) as T
+                                    }
+                                }
                             )
 
                             val state by viewModel.state.collectAsState()

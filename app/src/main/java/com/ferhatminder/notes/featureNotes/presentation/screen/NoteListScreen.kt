@@ -1,4 +1,4 @@
-package com.ferhatminder.notes
+package com.ferhatminder.notes.featureNotes.presentation.screen
 
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
@@ -22,7 +22,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import com.ferhatminder.notes.domain.model.Note
+import com.ferhatminder.notes.featureNotes.domain.model.Note
 import com.ferhatminder.notes.ui.theme.NotesTheme
 import com.ferhatminder.notes.ui.theme.Typography
 
@@ -142,7 +142,6 @@ private fun NoteListItem(
 @Composable
 private fun PreviewNoteListScreenContent() {
     NotesTheme {
-
         NoteListScreenContent(
             notes = listOf(
                 Note(
